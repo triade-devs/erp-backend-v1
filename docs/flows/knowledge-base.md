@@ -76,26 +76,3 @@
 **Ação:** `deleteArticleAction` → `requirePermission(companyId, 'kb:article:write')`
 
 Soft delete — seta `deleted_at`.
-
----
-
-## Arquivos relevantes
-
-```
-src/modules/knowledge-base/
-  actions/
-    create-article.ts
-    update-article.ts
-    publish-article.ts
-    delete-article.ts
-  queries/
-    list-articles.ts
-    get-article.ts
-  components/
-    article-editor.tsx   ← TipTap
-    article-list.tsx
-
-supabase/migrations/
-  20260425000021_kb_permissions.sql   ← permissões e habilitação por empresa
-  20260425000020_kb_rls.sql           ← RLS de artigos
-```

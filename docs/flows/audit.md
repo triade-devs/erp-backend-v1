@@ -62,19 +62,4 @@ Eventos são inseridos em `audit_logs` pelas Server Actions via um helper de aud
 | `member.role_changed` | Role do membro alterada      |
 | `company.updated`     | Dados da empresa atualizados |
 
----
 
-## Arquivos relevantes
-
-```
-src/modules/audit/
-  queries/
-    list-audit-logs.ts         ← auditoria por empresa
-    list-audit-logs-global.ts  ← auditoria global (platform admin)
-  components/
-    audit-log-table.tsx
-
-src/app/(dashboard)/
-  [companySlug]/audit/page.tsx
-  admin/audit/page.tsx
-```

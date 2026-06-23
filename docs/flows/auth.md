@@ -83,27 +83,3 @@ Rotas públicas — não requerem sessão.
 1. `resetPasswordAction` → valida token, atualiza senha
 2. Sucesso → `redirect("/login")`
 
----
-
-## Arquivos relevantes
-
-```
-src/
-  app/(auth)/
-    login/page.tsx
-    register/page.tsx
-    recover/page.tsx
-    recover/reset/page.tsx
-  modules/auth/
-    actions/sign-in.ts
-    actions/sign-up.ts
-    actions/recover-password.ts
-    actions/reset-password.ts
-    components/sign-in-form.tsx
-    components/sign-up-form.tsx
-    components/recover-form.tsx
-    components/reset-password-form.tsx
-    schemas/index.ts
-  middleware.ts
-  app/api/auth/callback/route.ts
-```

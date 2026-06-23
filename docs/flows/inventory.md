@@ -106,35 +106,3 @@ registrarMovimentação
 ```
 
 > ⚠️ **Nunca escreva diretamente em `products.stock`**. O trigger é a fonte de verdade.
-
----
-
-## Arquivos relevantes
-
-```
-src/modules/inventory/
-  actions/
-    create-product.ts       ← padrão canônico de action
-    update-product.ts
-    deactivate-product.ts
-    reactivate-product.ts
-    register-movement.ts    ← padrão canônico com dupla validação
-  queries/
-    list-products.ts
-    list-movements.ts
-  services/
-    stock-service.ts        ← validateMovement() (UX precheck)
-  schemas/
-    product-schema.ts
-    movement-schema.ts
-  components/
-    product-form.tsx
-    movement-form.tsx
-    inventory-table.tsx
-
-supabase/migrations/
-  20260420000007_seed_core_permissions.sql  ← permission codes
-  20260423000015_products_rls.sql           ← RLS de produtos
-  20260423000016_movements_rls.sql          ← RLS de movimentações
-  20260420_03_stock_movements.sql           ← trigger trg_apply_stock_movement
-```

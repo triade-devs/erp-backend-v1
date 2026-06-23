@@ -94,34 +94,3 @@ Menu lateral — seção superior do sidebar, acima da navegação.
 4. Admin compartilha link `/recover/reset?t=<token>` com o usuário
 5. Usuário usa o link para definir nova senha
 
----
-
-## Arquivos relevantes
-
-```
-src/modules/tenancy/
-  actions/
-    switch-active-company.ts
-    update-company.ts
-    create-invitation.ts
-    accept-invitation.ts
-    revoke-invitation.ts
-    regenerate-invitation.ts
-    update-member-roles.ts
-    update-member-status.ts
-    transfer-member.ts
-  queries/
-    get-current-user.ts
-    list-companies.ts
-    list-members.ts
-    list-invitations.ts
-  components/
-    company-switcher.tsx
-    company-settings-form.tsx
-    members-table.tsx
-    invite-form.tsx
-
-src/app/(dashboard)/[companySlug]/settings/
-  page.tsx
-  members/page.tsx
-```
