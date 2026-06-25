@@ -590,6 +590,7 @@ model companies {
   product_classifications     product_classifications[]
   products                    products[]
   roles                       roles[]
+  setup_status                CompanySetupStatus   @default(PENDING_SEED)
   space_rentals               space_rentals[]
   spaces                      spaces[]
   stock_movements             stock_movements[]
@@ -1600,6 +1601,15 @@ enum space_booking_mode {
   daily
   hourly
   both
+
+  @@schema("public")
+}
+
+enum CompanySetupStatus {
+  PENDING_SEED
+  PENDING_FISCAL
+  ACTIVE
+  SUSPENDED
 
   @@schema("public")
 }

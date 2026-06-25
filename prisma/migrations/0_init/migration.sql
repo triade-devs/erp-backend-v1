@@ -1,3 +1,8 @@
+--gambiarra para permitir o uso de tipos de dados do PostgreSQL que não são suportados nativamente pelo Prisma, como tsvector e tstzrange.
+CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
+CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA public;
+
+
 -- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "auth";
 
@@ -33,6 +38,9 @@ CREATE TYPE "auth"."one_time_token_type" AS ENUM ('confirmation_token', 'reauthe
 
 -- CreateEnum
 CREATE TYPE "medical_assignment_relationship" AS ENUM ('primary_physician', 'physician', 'nursing', 'assistant', 'therapist', 'other');
+
+-- CreateEnum
+CREATE TYPE "CompanySetupStatus" AS ENUM ('PENDING_SEED', 'PENDING_FISCAL', 'ACTIVE', 'SUSPENDED');
 
 -- CreateEnum
 CREATE TYPE "membership_status" AS ENUM ('invited', 'active', 'suspended');
@@ -122,7 +130,7 @@ CREATE TABLE "auth"."identities" (
     "last_sign_in_at" TIMESTAMPTZ(6),
     "created_at" TIMESTAMPTZ(6),
     "updated_at" TIMESTAMPTZ(6),
-    "email" TEXT DEFAULT lower((identity_data ->> 'email'::text)),
+    "email" TEXT,
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
 
     CONSTRAINT "identities_pkey" PRIMARY KEY ("id")
@@ -381,7 +389,7 @@ CREATE TABLE "auth"."users" (
     "phone_change" TEXT DEFAULT '',
     "phone_change_token" VARCHAR(255) DEFAULT '',
     "phone_change_sent_at" TIMESTAMPTZ(6),
-    "confirmed_at" TIMESTAMPTZ(6) DEFAULT LEAST(email_confirmed_at, phone_confirmed_at),
+    "confirmed_at" TIMESTAMPTZ(6),
     "email_change_token_current" VARCHAR(255) DEFAULT '',
     "email_change_confirm_status" SMALLINT DEFAULT 0,
     "banned_until" TIMESTAMPTZ(6),
@@ -453,6 +461,7 @@ CREATE TABLE "companies" (
     "document" TEXT,
     "plan" TEXT NOT NULL DEFAULT 'starter',
     "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "setup_status" "CompanySetupStatus" NOT NULL DEFAULT 'PENDING_SEED',
     "created_by" UUID,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -542,7 +551,7 @@ CREATE TABLE "kb_articles" (
     "related_module" TEXT,
     "related_table" TEXT,
     "video_id" UUID,
-    "search_vector" tsvector DEFAULT ((setweight(to_tsvector('portuguese'::regconfig, COALESCE(title, ''::text)), 'A'::"char") || setweight(to_tsvector('portuguese'::regconfig, COALESCE(summary, ''::text)), 'B'::"char")) || setweight(to_tsvector('portuguese'::regconfig, COALESCE(content_md, ''::text)), 'C'::"char")),
+    "search_vector" tsvector,
     "created_by" UUID,
     "updated_by" UUID,
     "published_at" TIMESTAMPTZ(6),
@@ -1021,7 +1030,7 @@ CREATE TABLE "space_rentals" (
     "booking_kind" "rental_kind" NOT NULL,
     "starts_at" TIMESTAMPTZ(6) NOT NULL,
     "ends_at" TIMESTAMPTZ(6) NOT NULL,
-    "period" tstzrange DEFAULT tstzrange(starts_at, ends_at, '[)'::text),
+    "period" tstzrange,
     "price" DECIMAL(12,2) NOT NULL DEFAULT 0,
     "status" "rental_status" NOT NULL DEFAULT 'confirmed',
     "notes" TEXT,
