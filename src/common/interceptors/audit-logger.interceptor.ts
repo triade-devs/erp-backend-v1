@@ -81,7 +81,7 @@ export class AuditLoggerInterceptor implements NestInterceptor {
 
     if (!user) return; // Rota pública, nada a logar
 
-    await this.prisma.audit_logs.create({
+    await this.prisma.db.audit_logs.create({
       data: {
         company_id: tenant?.companyId ?? null,
         actor_user_id: user.id,

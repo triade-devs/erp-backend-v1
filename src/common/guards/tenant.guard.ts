@@ -52,7 +52,7 @@ export class TenantGuard implements CanActivate {
     }
 
     // ── Buscar membership ativa ──
-    const membership = await this.prisma.memberships.findUnique({
+    const membership = await this.prisma.db.memberships.findUnique({
       where: {
         user_id_company_id: {
           user_id: user.id,
