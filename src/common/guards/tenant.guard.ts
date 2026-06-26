@@ -1,16 +1,7 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import type { Request } from 'express';
 import { PrismaService } from '../../prisma/prisma.service.js';
-import type {
-  AuthenticatedUser,
-  TenantContext,
-} from '../interfaces/request-context.interface.js';
+import type { AuthenticatedUser, TenantContext } from '../interfaces/request-context.interface.js';
 
 /**
  * TenantGuard — Resolução de Tenant via Header `x-company-id`.
@@ -33,22 +24,16 @@ export class TenantGuard implements CanActivate {
   constructor(private readonly prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<
-      Request & { user: AuthenticatedUser; tenant?: TenantContext }
-    >();
+    const request = context.switchToHttp().getRequest<Request & { user: AuthenticatedUser; tenant?: TenantContext }>();
 
     const user = request.user;
     if (!user) {
-      throw new ForbiddenException(
-        'TenantGuard requer SupabaseAuthGuard ativo antes.',
-      );
+      throw new ForbiddenException('TenantGuard requer SupabaseAuthGuard ativo antes.');
     }
 
     const companyId = request.headers['x-company-id'] as string | undefined;
     if (!companyId) {
-      throw new ForbiddenException(
-        'Header x-company-id é obrigatório para acessar recursos de tenant.',
-      );
+      throw new ForbiddenException('Header x-company-id é obrigatório para acessar recursos de tenant.');
     }
 
     // ── Buscar membership ativa ──
@@ -78,12 +63,8 @@ export class TenantGuard implements CanActivate {
     });
 
     if (!membership || membership.status !== 'active') {
-      this.logger.warn(
-        `Acesso negado: user=${user.id} tentou acessar company=${companyId}`,
-      );
-      throw new ForbiddenException(
-        'Você não possui acesso ativo a esta empresa.',
-      );
+      this.logger.warn(`Acesso negado: user=${user.id} tentou acessar company=${companyId}`);
+      throw new ForbiddenException('Você não possui acesso ativo a esta empresa.');
     }
 
     // ── Coletar permissões de todos os roles ──

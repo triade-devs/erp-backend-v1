@@ -27,15 +27,11 @@ export const CurrentTenant = createParamDecorator(
     data: keyof TenantContext | undefined,
     ctx: ExecutionContext,
   ): TenantContext | TenantContext[keyof TenantContext] => {
-    const request = ctx.switchToHttp().getRequest<
-      Request & { tenant: TenantContext }
-    >();
+    const request = ctx.switchToHttp().getRequest<Request & { tenant: TenantContext }>();
     const tenant = request.tenant;
 
     if (!tenant) {
-      throw new Error(
-        'CurrentTenant decorator invocado sem TenantGuard ativo na rota.',
-      );
+      throw new Error('CurrentTenant decorator invocado sem TenantGuard ativo na rota.');
     }
 
     return data ? tenant[data] : tenant;

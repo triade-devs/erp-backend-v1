@@ -1,17 +1,8 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
 import type { Request } from 'express';
 import { PrismaService } from '../../prisma/prisma.service.js';
-import type {
-  AuthenticatedUser,
-  TenantContext,
-} from '../interfaces/request-context.interface.js';
+import type { AuthenticatedUser, TenantContext } from '../interfaces/request-context.interface.js';
 
 /**
  * Interceptor de Audit Log.
@@ -34,19 +25,12 @@ import type {
 export class AuditLoggerInterceptor implements NestInterceptor {
   private readonly logger = new Logger(AuditLoggerInterceptor.name);
 
-  private static readonly AUDITABLE_METHODS = new Set([
-    'POST',
-    'PUT',
-    'PATCH',
-    'DELETE',
-  ]);
+  private static readonly AUDITABLE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
   constructor(private readonly prisma: PrismaService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const request = context.switchToHttp().getRequest<
-      Request & { user?: AuthenticatedUser; tenant?: TenantContext }
-    >();
+    const request = context.switchToHttp().getRequest<Request & { user?: AuthenticatedUser; tenant?: TenantContext }>();
 
     // Só audita métodos mutantes
     if (!AuditLoggerInterceptor.AUDITABLE_METHODS.has(request.method)) {
@@ -58,12 +42,12 @@ export class AuditLoggerInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap({
         next: () => {
-          this.writeAuditLog(request, 'success', startTime).catch((err) =>
+          this.writeAuditLog(request, 'success', startTime).catch(err =>
             this.logger.error('Falha ao escrever audit log', err),
           );
         },
         error: () => {
-          this.writeAuditLog(request, 'error', startTime).catch((err) =>
+          this.writeAuditLog(request, 'error', startTime).catch(err =>
             this.logger.error('Falha ao escrever audit log', err),
           );
         },
@@ -111,10 +95,7 @@ export class AuditLoggerInterceptor implements NestInterceptor {
     if (segments.length === 0) return null;
 
     const last = segments[segments.length - 1];
-    const isUuid =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        last,
-      );
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(last);
 
     if (isUuid && segments.length >= 2) {
       return segments[segments.length - 2];

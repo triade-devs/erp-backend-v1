@@ -30,9 +30,9 @@ async function bootstrap(): Promise<void> {
   // ── ValidationPipe global (class-validator) ──
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,         // Strip propriedades não-decoradas
+      whitelist: true, // Strip propriedades não-decoradas
       forbidNonWhitelisted: true, // Rejeita propriedades extras
-      transform: true,         // Transforma payloads em instâncias de DTO
+      transform: true, // Transforma payloads em instâncias de DTO
       transformOptions: {
         enableImplicitConversion: true,
       },

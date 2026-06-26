@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  OnModuleInit,
-  OnModuleDestroy,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import type { PrismaClient as PrismaClientType } from '../../generated/prisma/index.js';
 
 // O arquivo compilado fica em dist/src/prisma/prisma.service.js

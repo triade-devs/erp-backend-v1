@@ -1,11 +1,4 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Logger,
-  HttpStatus,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Logger, HttpStatus } from '@nestjs/common';
 import type { Request } from 'express';
 import type { TenantContext } from '../interfaces/request-context.interface.js';
 

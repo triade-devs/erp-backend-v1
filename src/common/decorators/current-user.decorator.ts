@@ -31,9 +31,7 @@ export const CurrentUser = createParamDecorator(
     const user = (request as Request & { user: AuthenticatedUser }).user;
 
     if (!user) {
-      throw new Error(
-        'CurrentUser decorator invocado sem SupabaseAuthGuard ativo na rota.',
-      );
+      throw new Error('CurrentUser decorator invocado sem SupabaseAuthGuard ativo na rota.');
     }
 
     return data ? user[data] : user;

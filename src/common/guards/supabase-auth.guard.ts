@@ -1,10 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
@@ -92,9 +86,7 @@ export class SupabaseAuthGuard implements CanActivate {
     }
 
     // Decodificar payload
-    const payload = JSON.parse(
-      Buffer.from(payloadB64, 'base64url').toString('utf-8'),
-    );
+    const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8'));
 
     // Verificar expiração
     if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
