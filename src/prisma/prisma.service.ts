@@ -39,8 +39,19 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit(): Promise<void> {
     this.logger.log('Conectando ao PostgreSQL…');
-    await this.client.$connect();
-    this.logger.log('Conexão estabelecida com sucesso ✓');
+    try {
+      await this.client.$connect();
+      this.logger.log('Conexão estabelecida com sucesso ✓');
+    } catch (err) {
+      const isProd = process.env.NODE_ENV === 'production';
+      if (isProd) {
+        // Em produção: crash imediato para acionar readiness probes
+        throw err;
+      }
+      // Em dev: log de aviso e continua — rotas @Public() funcionam sem DB
+      this.logger.warn(`⚠️  Banco de dados inacessível (P1001). Verifique se o projeto Supabase está ativo.`);
+      this.logger.warn(`   Rotas @Public() (ex: /api/v1/health) continuam funcionando normalmente.`);
+    }
   }
 
   async onModuleDestroy(): Promise<void> {
