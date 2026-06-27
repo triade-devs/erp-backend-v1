@@ -133,6 +133,22 @@ npm run build
 
 A API estará disponível em: `http://localhost:3000/api/v1`
 
+### Documentação interativa (Swagger)
+
+Em ambiente de desenvolvimento, o Swagger UI fica em:
+
+```
+http://localhost:3000/api/v1/docs
+```
+
+> Em produção (`NODE_ENV=production`) o Swagger é desabilitado automaticamente.
+
+Para autenticar no Swagger UI:
+1. Clique no botão **Authorize** 🔓
+2. No campo `supabase-jwt (Bearer)`, cole seu JWT do Supabase
+3. Opcionalmente preencha `company-id` (X-Company-Id) para rotas de tenant
+4. Clique **Authorize** e feche o modal
+
 ### Scripts disponíveis
 
 | Comando | O que faz |
