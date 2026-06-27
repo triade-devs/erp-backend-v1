@@ -58,6 +58,7 @@ export class SupabaseAuthGuard implements CanActivate {
       id: payload.sub,
       email: payload.email ?? '',
       appMetadata: payload.app_metadata,
+      aal: payload.aal ?? undefined,
     };
     (request as Request & { user: AuthenticatedUser }).user = user;
 

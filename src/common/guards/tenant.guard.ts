@@ -2,20 +2,25 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Logger }
 import type { Request } from 'express';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import type { AuthenticatedUser, TenantContext } from '../interfaces/request-context.interface.js';
+import { SUPPORT_PROXY_PERMISSIONS } from '../constants/support-permissions.constant.js';
 
 /**
  * TenantGuard — Resolução de Tenant via Header `x-company-id`.
  *
- * Fluxo:
+ * Fluxo normal (usuário autenticado com membership):
  * 1. Lê `x-company-id` do header.
- * 2. Busca membership ativa do usuário naquela empresa.
+ * 2. Busca membership ativa do usuário naquela empresa, incluindo `setup_status`.
  * 3. Carrega as permissões via membership_roles → role_permissions.
  * 4. Injeta `TenantContext` no request para uso downstream.
  *
- * Se o usuário não tiver membership ativa na empresa, retorna 403.
+ * Fluxo de suporte (isSupportProxy = true, injetado pelo SupportAccessGuard):
+ * 1. Pula o lookup de memberships — operador de suporte não tem membership.
+ * 2. Valida que x-company-id bate com o realCompanyId do grant (decisão #4).
+ * 3. Monta TenantContext com SUPPORT_PROXY_PERMISSIONS fixas (decisão #3).
+ * 4. Ainda carrega setup_status da empresa para o CompanyActiveGuard.
  *
- * NOTA: Este guard depende do SupabaseAuthGuard já ter executado
- * (ou seja, `request.user` já está populado).
+ * NOTA: Este guard depende do SupabaseAuthGuard (e opcionalmente do
+ * SupportAccessGuard) já terem executado.
  */
 @Injectable()
 export class TenantGuard implements CanActivate {
@@ -36,7 +41,37 @@ export class TenantGuard implements CanActivate {
       throw new ForbiddenException('Header x-company-id é obrigatório para acessar recursos de tenant.');
     }
 
-    // ── Buscar membership ativa ──
+    // ── Modo Suporte ──────────────────────────────────────────────────────────
+    if (user.isSupportProxy) {
+      // Valida que o header x-company-id bate com o grant (decisão #4)
+      if (companyId !== user.realCompanyId) {
+        this.logger.warn(
+          `SupportProxy: header x-company-id=${companyId} não bate com grant.company_id=${user.realCompanyId}`,
+        );
+        throw new ForbiddenException('x-company-id não confere com o grant de suporte ativo.');
+      }
+
+      // Carrega setup_status da empresa sem checar membership
+      const company = await this.prisma.db.companies.findUnique({
+        where: { id: companyId },
+        select: { setup_status: true },
+      });
+
+      if (!company) {
+        throw new ForbiddenException('Empresa não encontrada.');
+      }
+
+      request.tenant = {
+        companyId,
+        membershipId: '', // suporte não tem membership
+        permissions: SUPPORT_PROXY_PERMISSIONS,
+        setupStatus: company.setup_status,
+      };
+
+      return true;
+    }
+
+    // ── Fluxo Normal ──────────────────────────────────────────────────────────
     const membership = await this.prisma.db.memberships.findUnique({
       where: {
         user_id_company_id: {
@@ -47,6 +82,9 @@ export class TenantGuard implements CanActivate {
       select: {
         id: true,
         status: true,
+        companies: {
+          select: { setup_status: true },
+        },
         membership_roles: {
           select: {
             roles: {
@@ -80,6 +118,7 @@ export class TenantGuard implements CanActivate {
       companyId,
       membershipId: membership.id,
       permissions: Array.from(permissions),
+      setupStatus: membership.companies.setup_status,
     };
 
     return true;

@@ -32,8 +32,12 @@ export class AuditLoggerInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest<Request & { user?: AuthenticatedUser; tenant?: TenantContext }>();
 
-    // Só audita métodos mutantes
-    if (!AuditLoggerInterceptor.AUDITABLE_METHODS.has(request.method)) {
+    // Audita métodos mutantes sempre.
+    // Audita GET/HEAD apenas quando o request vem de operador de suporte (Fase G).
+    const isMutant = AuditLoggerInterceptor.AUDITABLE_METHODS.has(request.method);
+    const isSupportRead = request.method === 'GET' && request.user?.isSupportProxy === true;
+
+    if (!isMutant && !isSupportRead) {
       return next.handle();
     }
 
