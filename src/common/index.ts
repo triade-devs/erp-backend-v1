@@ -16,6 +16,7 @@ export { Public, IS_PUBLIC_KEY } from './decorators/public.decorator.js';
 export { SkipTenant, SKIP_TENANT_KEY } from './decorators/skip-tenant.decorator.js';
 export { AllowDuringFiscalSetup, ALLOW_DURING_FISCAL_SETUP_KEY } from './decorators/allow-during-fiscal-setup.decorator.js';
 export { TenantProtected } from './decorators/tenant-protected.decorator.js';
+export { RequirePermission, REQUIRE_PERMISSION_KEY } from './decorators/require-permission.decorator.js';
 
 // ── Guards ──
 export { SupabaseAuthGuard } from './guards/supabase-auth.guard.js';
@@ -23,6 +24,7 @@ export { SupportAccessGuard } from './guards/support-access.guard.js';
 export { TenantGuard } from './guards/tenant.guard.js';
 export { CompanyActiveGuard } from './guards/company-active.guard.js';
 export { PlatformAdminGuard } from './guards/platform-admin.guard.js';
+export { PermissionGuard } from './guards/permission.guard.js';
 
 // ── Constants ──
 export { SUPPORT_PROXY_PERMISSIONS } from './constants/support-permissions.constant.js';
