@@ -10,6 +10,9 @@ import { AuditLoggerInterceptor } from './common/interceptors/audit-logger.inter
 import { RouteClassificationChecker } from './common/bootstrap/route-classification.checker.js';
 import { OnboardingModule } from './onboarding/onboarding.module.js';
 import { PlatformModule } from './platform/platform.module.js';
+import { SuppliersModule } from './suppliers/suppliers.module.js';
+import { InventoryModule } from './inventory/inventory.module.js';
+import { MovementsModule } from './movements/movements.module.js';
 import { AppController } from './app.controller.js';
 
 /**
@@ -23,6 +26,10 @@ import { AppController } from './app.controller.js';
  * │ Módulos de negócio:                          │
  * │   • OnboardingModule (E1/E2/E3)              │
  * │   • PlatformModule (support grants)          │
+ * │   • SuppliersModule (CRUD fornecedores)      │
+ * │   • InventoryModule (classifications,        │
+ * │     products, change-requests)               │
+ * │   • MovementsModule (motor FIFO)             │
  * ├─────────────────────────────────────────────┤
  * │ Guards globais:                              │
  * │   1. SupabaseAuthGuard (JWT HS256)           │
@@ -57,6 +64,9 @@ import { AppController } from './app.controller.js';
     // ── Módulos de negócio ──
     OnboardingModule,
     PlatformModule,
+    SuppliersModule,
+    InventoryModule,
+    MovementsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -52,22 +52,62 @@ async function bootstrap(): Promise<void> {
       .setDescription(
         '## ERP Modular Multi-tenant — API REST\n\n' +
           'Backend de um ERP modular com isolamento total de dados por empresa via **RLS no PostgreSQL**.\n\n' +
-          '### Autenticação\n\n' +
+          '---\n\n' +
+          '### 🔐 Autenticação\n\n' +
           'Todas as rotas (exceto `@Public()`) exigem o header:\n\n' +
           '```\nAuthorization: Bearer <supabase-jwt>\n```\n\n' +
           'O JWT é emitido pelo **Supabase Auth** e verificado via HS256 com o `SUPABASE_JWT_SECRET`.\n\n' +
-          '### Multi-tenant\n\n' +
+          '### 🏢 Multi-tenant\n\n' +
           'Rotas `@TenantProtected()` exigem também:\n\n' +
           '```\nX-Company-Id: <uuid-da-empresa>\n```\n\n' +
-          '### Acesso de Suporte\n\n' +
+          '### 🛡️ Acesso de Suporte\n\n' +
           'Operadores de suporte incluem adicionalmente:\n\n' +
           '```\nX-Support-Grant: <grant-id>\n```\n\n' +
-          '### Classificação de Rotas\n\n' +
+          '### 📋 Classificação de Rotas\n\n' +
           '| Decorator | Comportamento |\n' +
           '|---|---|\n' +
           '| `@Public()` | Sem autenticação |\n' +
           '| `@SkipTenant()` | JWT obrigatório, sem contexto de empresa |\n' +
-          '| `@TenantProtected()` | JWT + X-Company-Id + membership ativo + empresa ACTIVE |',
+          '| `@TenantProtected()` | JWT + X-Company-Id + membership ativo + empresa ACTIVE |\n\n' +
+          '---\n\n' +
+          '### 🧪 Como Testar a API (Passo a Passo)\n\n' +
+          '#### Pré-requisitos\n\n' +
+          '1. Servidor rodando: `npm run start:dev`\n' +
+          '2. Um usuário cadastrado no Supabase Auth do projeto\n' +
+          '3. Uma empresa criada via onboarding (E1 + E2)\n\n' +
+          '#### Passo 1 — Obter JWT\n\n' +
+          'Usando o Supabase client (JS, cURL ou Postman):\n\n' +
+          '```bash\n' +
+          'curl -X POST "https://<PROJECT_REF>.supabase.co/auth/v1/token?grant_type=password" \\\n' +
+          '  -H "apikey: <SUPABASE_ANON_KEY>" \\\n' +
+          '  -H "Content-Type: application/json" \\\n' +
+          '  -d \'{"email": "dev@empresa.com", "password": "sua-senha"}\'\n' +
+          '```\n\n' +
+          'Copie o campo `access_token` da resposta — este é o seu JWT.\n\n' +
+          '#### Passo 2 — Autenticar no Swagger\n\n' +
+          '1. Clique em **Authorize** 🔓\n' +
+          '2. Em `supabase-jwt`, cole o `access_token`\n' +
+          '3. Em `company-id`, cole o UUID da empresa\n' +
+          '4. Clique **Authorize** e feche\n\n' +
+          '#### Passo 3 — Criar empresa (se ainda não tem)\n\n' +
+          '```\n' +
+          'POST /onboarding/companies  →  retorna { companyId }\n' +
+          'PATCH /onboarding/companies/:id/fiscal-data  →  ativa a empresa\n' +
+          '```\n\n' +
+          '#### Passo 4 — Testar os módulos de Estoque\n\n' +
+          '**Fluxo recomendado de testes (ordem):**\n\n' +
+          '```\n' +
+          '1. POST /suppliers              → Criar fornecedor\n' +
+          '2. POST /inventory/classifications → Criar departamento (level: "department")\n' +
+          '3. POST /inventory/classifications → Criar categoria (level: "category", parent_id: <dept-id>)\n' +
+          '4. POST /inventory/products     → Criar produto (com classification_id e barcode)\n' +
+          '5. POST /movements              → Entrada (type: "in", unit_cost + quantity)\n' +
+          '6. POST /movements              → Saída FIFO (type: "out", quantity)\n' +
+          '7. GET  /movements/:id          → Verificar consumo por lote\n' +
+          '8. GET  /inventory/products/:id  → Verificar saldo atualizado\n' +
+          '```\n\n' +
+          '> **Dica:** Teste cada endpoint individualmente antes de testar o fluxo completo.\n' +
+          '> O Swagger mostra exemplos de payload em cada endpoint — clique em "Try it out".',
       )
       .setVersion('1.0.0')
       .setContact('ERP Team', '', '')
@@ -112,6 +152,11 @@ async function bootstrap(): Promise<void> {
       )
       .addTag('Onboarding', 'As três portas de entrada: criar empresa, dados fiscais e aceite de convite.')
       .addTag('Platform (Admin Interno)', 'Operações administrativas da plataforma. Exclusivo para platform_admins.')
+      .addTag('Suppliers (Fornecedores)', 'CRUD de fornecedores com autopreenchimento por CNPJ.')
+      .addTag('Inventory - Classifications', 'Árvore de classificações de produto (department → category → brand).')
+      .addTag('Inventory - Products', 'CRUD de produtos com enriquecimento por EAN/NCM e histórico de preço.')
+      .addTag('Inventory - Change Requests', 'Fila de câmera: operador submete, gerente aprova/rejeita com transação ACID.')
+      .addTag('Movements (Movimentações)', 'Motor FIFO de movimentação de estoque (entrada, saída, ajuste, perda).')
       .build();
 
     const document = SwaggerModule.createDocument(app, swaggerConfig);

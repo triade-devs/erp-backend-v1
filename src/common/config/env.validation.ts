@@ -34,6 +34,16 @@ export const envSchema = z.object({
   SUPPORT_MFA_ENFORCED: z
     .enum(['true', 'false'])
     .default('false'),
+
+  // ── Enrichment Microservices (opcionais) ────────────────────────────────
+  /** URL do microserviço de consulta de empresa por CNPJ */
+  ENRICHMENT_EMPRESA_URL: z.string().url().optional(),
+  /** URL do microserviço de consulta de CEP */
+  ENRICHMENT_CEP_URL: z.string().url().optional(),
+  /** URL do microserviço de consulta de código de barras (EAN) */
+  ENRICHMENT_BARCODE_URL: z.string().url().optional(),
+  /** URL do microserviço de consulta de NCM */
+  ENRICHMENT_NCM_URL: z.string().url().optional(),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
